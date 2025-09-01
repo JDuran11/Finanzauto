@@ -1,0 +1,40 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build Folders
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Visual Studio Code
+.vscode/
+
+# NuGet
+*.nupkg
+packages/
+*.snupkg
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# Configuración local de IIS Express
+IISExpress/
+
+# Test results
+TestResults/
+
+# Entity Framework Migrations
+*.db
+*.sqlite
+*.sql
+
+# OneDrive / temp
+~$*
