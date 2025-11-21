@@ -2,6 +2,7 @@
 using Finanzauto.Domain.DTOS.Product;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace Finanzauto.WebApi.Controllers
 {
@@ -57,8 +58,8 @@ namespace Finanzauto.WebApi.Controllers
         [HttpGet]
         [Route("/api/Products")]
         public async Task<IActionResult> GetProductsPaged(
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10,
+            [FromQuery, Range(1, int.MaxValue, ErrorMessage = "La página debe ser mayor a 0")] int page = 1,
+            [FromQuery, Range(1, 100, ErrorMessage = "El tamaño de página debe estar entre 1 y 100")] int pageSize = 10,
             [FromQuery] string? productName = null,
             [FromQuery] long? categoryId = null,
             [FromQuery] long? supplierId = null,
@@ -125,12 +126,18 @@ namespace Finanzauto.WebApi.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost("Generate")]
-        public async Task<IActionResult> GenerateProducts([FromQuery] int count = 1000, [FromQuery] long? categoryId = null, long? supplierId = null)
+        public async Task<IActionResult> GenerateProducts(
+            [FromQuery, Range(1, 10000, ErrorMessage = "El número de productos debe estar entre 1 y 10000")] int count = 1000,
+            [FromQuery] long? categoryId = null,
+            [FromQuery] long? supplierId = null)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var inserted = await _productService.BulkCreateProducts(count, categoryId, supplierId);
-            return Ok($"{inserted} productos generados y guardados exitosamente.");
+            return Ok(new { Message = $"{inserted} productos generados y guardados exitosamente.", Count = inserted });
         }
 
         [Authorize]

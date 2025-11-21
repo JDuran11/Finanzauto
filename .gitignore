@@ -38,3 +38,12 @@ TestResults/
 
 # OneDrive / temp
 ~$*
+
+# Secrets and configuration files
+appsettings.json
+appsettings.*.json
+!appsettings.Template.json
+*.env
+.env.*
+secrets.json
+user-secrets/
