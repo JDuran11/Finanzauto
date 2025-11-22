@@ -21,6 +21,15 @@ namespace Finanzauto.Persistence.Repositories
 
         public async Task<ProductDTO> CreateProduct(ProductCreateDTO dto)
         {
+            // Validar que existan el Supplier y Category
+            var supplierExists = await _context.Suppliers.AnyAsync(s => s.Id == dto.SupplierId);
+            if (!supplierExists)
+                throw new InvalidOperationException($"El proveedor con ID {dto.SupplierId} no existe");
+
+            var categoryExists = await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId);
+            if (!categoryExists)
+                throw new InvalidOperationException($"La categoría con ID {dto.CategoryId} no existe");
+
             var entity = new Product
             {
                 ProductName = dto.ProductName,
@@ -154,6 +163,15 @@ namespace Finanzauto.Persistence.Repositories
             var entity = await _context.Products.FindAsync(id);
             if (entity == null) return false;
 
+            // Validar que existan el Supplier y Category
+            var supplierExists = await _context.Suppliers.AnyAsync(s => s.Id == dto.SupplierId);
+            if (!supplierExists)
+                throw new InvalidOperationException($"El proveedor con ID {dto.SupplierId} no existe");
+
+            var categoryExists = await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId);
+            if (!categoryExists)
+                throw new InvalidOperationException($"La categoría con ID {dto.CategoryId} no existe");
+
             entity.ProductName = dto.ProductName;
             entity.SupplierId = dto.SupplierId;
             entity.CategoryId = dto.CategoryId;
@@ -168,6 +186,9 @@ namespace Finanzauto.Persistence.Repositories
             _context.Products.Update(entity);
             await _context.SaveChangesAsync();
 
+            // Invalidar caché del producto actualizado
+            _cache.Remove($"Product_{id}");
+
             return true;
         }
 
@@ -178,6 +199,10 @@ namespace Finanzauto.Persistence.Repositories
 
             _context.Products.Remove(entity);
             await _context.SaveChangesAsync();
+
+            // Invalidar caché del producto eliminado
+            _cache.Remove($"Product_{id}");
+
             return true;
         }
 

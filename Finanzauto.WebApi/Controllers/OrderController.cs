@@ -2,6 +2,8 @@
 using Finanzauto.Domain.DTOS.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Finanzauto.WebApi.Controllers
 {
@@ -59,7 +61,9 @@ namespace Finanzauto.WebApi.Controllers
         [Authorize]
         [HttpGet]
         [Route("/api/Orders")]
-        public async Task<IActionResult> GetOrdersPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetOrdersPaged(
+            [FromQuery, Range(1, int.MaxValue, ErrorMessage = "La página debe ser mayor a 0")] int page = 1,
+            [FromQuery, Range(1, 100, ErrorMessage = "El tamaño de página debe estar entre 1 y 100")] int pageSize = 10)
         {
             try
             {
